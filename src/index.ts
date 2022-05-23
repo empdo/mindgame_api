@@ -236,6 +236,6 @@ app.use(koaBody());
 app.use(koaWs());
 app.use(koaCors());
 app.use(router.routes());
-app.listen(5000);
+app.listen(config.PORT);
 
 console.log(`Started server on port ${config.PORT}`);
