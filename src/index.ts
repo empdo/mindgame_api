@@ -10,7 +10,7 @@ const app = new Koa();
 const router = new KoaRouter({ prefix: "/api" });
 
 const config = {
-  PORT: 5000,
+  PORT: 10406,
 };
 
 let lobbies: { [id: string]: Lobby } = {};
