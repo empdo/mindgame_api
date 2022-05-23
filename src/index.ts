@@ -7,7 +7,7 @@ import WebSocket from "ws";
 import { v4 as uuidv4 } from "uuid";
 
 const app = new Koa();
-const router = new KoaRouter();
+const router = new KoaRouter({ prefix: "/api" });
 
 const config = {
   PORT: 5000,
