@@ -68,7 +68,7 @@ class Player {
     this.lobby.players = this.lobby.players.filter((p) => p.ws !== this.ws);
 
     if (this.lobby.players.length === 0) {
-      this.lobby.isPlaying = false;
+      lobbies[this.lobby.id] = new Lobby(this.lobby.id);
     }
 
     this.lobby.alertPlayersList();
