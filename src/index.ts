@@ -211,7 +211,18 @@ router.get("/", (ctx) => {
 });
 
 router.get("/lobbies", (ctx) => {
-  ctx.body = Object.keys(lobbies);
+  let _lobbies = [];
+  for (const lobby in lobbies) {
+    _lobbies.push({
+      id: lobby,
+      players: lobbies[lobby].players.map((player) => {
+        return {
+          name: player.name,
+        };
+      }),
+    });
+  }
+  ctx.body = _lobbies;
 });
 
 router.get("/lobby/:id/", async (ctx) => {
