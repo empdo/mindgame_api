@@ -158,6 +158,7 @@ class Lobby {
             return {
               name: _player.name,
               readyState: _player.readyState,
+              cards: _player.cards,
               local: _player.ws === player.ws,
             };
           }),
