@@ -187,18 +187,21 @@ class Lobby {
     this.dealtCards = [];
     this.playedCards = [];
 
+    const cards: { [id: string]: number[] } = {};
+
     //byt ut mot broadcast function
     this.players.forEach((player) => {
-      const cards = numbers.splice(0, roundIndex);
-      player.cards = cards;
-      this.dealtCards.push(...cards);
-      player.ws.send(JSON.stringify({ type: 3, data: player.cards }));
+      const _cards = numbers.splice(0, roundIndex);
+      player.cards = _cards;
+      this.dealtCards.push(..._cards);
+      cards[player.id] = _cards;
     });
+
+    this.broadcast(3, cards);
 
     this.dealtCards = this.dealtCards.sort(function (a, b) {
       return a > b ? 1 : -1;
     });
-    console.log(this.dealtCards);
   }
 }
 
