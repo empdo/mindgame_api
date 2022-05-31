@@ -160,6 +160,7 @@ class Lobby {
               readyState: _player.readyState,
               cards: _player.cards,
               local: _player.ws === player.ws,
+              id: _player.id,
             };
           }),
         })
