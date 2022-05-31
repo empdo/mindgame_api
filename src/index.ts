@@ -215,11 +215,7 @@ router.get("/lobbies", (ctx) => {
   for (const lobby in lobbies) {
     _lobbies.push({
       id: lobby,
-      players: lobbies[lobby].players.map((player) => {
-        return {
-          name: player.name,
-        };
-      }),
+      players: lobbies[lobby].players.map((player) => player.name),
     });
   }
   ctx.body = _lobbies;
