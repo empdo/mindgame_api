@@ -157,6 +157,7 @@ class Lobby {
         player.readyState = false;
         return player;
       });
+      this.alertPlayersList();
     }
   }
 
