@@ -247,7 +247,7 @@ router.post("/token", (ctx) => {
   const { name } = ctx.request.body;
   const token = jwt.sign({ name, sub: generateCuid() }, jwtSecret);
   console.log(token, name);
-  ctx.body = token;
+  ctx.body = JSON.stringify({ token });
 });
 
 router.get("/lobby/:id/", async (ctx) => {
