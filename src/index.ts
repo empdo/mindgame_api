@@ -248,6 +248,7 @@ router.get("/lobby/:id/", async (ctx) => {
 
   const queryToken = ctx.request.query["token"] as string;
   const token = jwt.verify(queryToken, jwtSecret) as jwt.JwtPayload;
+  console.log(token);
 
   if (!ctx.ws || !id || !token) return;
   const ws: WebSocket = await ctx.ws();
@@ -264,6 +265,7 @@ router.get("/lobby/:id/", async (ctx) => {
     let index = ids.indexOf(token.sub!);
 
     lobbies[id].addPlayer(player, index);
+    console.log(lobbies[id].players);
     ctx.body = "Lobby is playing";
   }
 });
