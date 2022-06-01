@@ -242,6 +242,12 @@ router.get("/lobbies", (ctx) => {
   ctx.body = _lobbies;
 });
 
+router.get("/token", (ctx) => {
+  const { name, sub } = ctx.request.body;
+  const token = jwt.sign({ name, sub }, "secret");
+  ctx.body = token;
+});
+
 router.get("/lobby/:id/", async (ctx) => {
   //connect to lobby
   const id = ctx.params.id;
