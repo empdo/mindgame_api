@@ -6,6 +6,7 @@ import koaCors from "@koa/cors";
 import WebSocket from "ws";
 import { v4 as uuidv4 } from "uuid";
 import jwt from "jsonwebtoken";
+import generateCuid from "cuid";
 
 const app = new Koa();
 const router = new KoaRouter({ prefix: "/api" });
@@ -243,8 +244,8 @@ router.get("/lobbies", (ctx) => {
 });
 
 router.get("/token", (ctx) => {
-  const { name, sub } = ctx.request.body;
-  const token = jwt.sign({ name, sub }, "secret");
+  const { name } = ctx.request.body;
+  const token = jwt.sign({ name, sub: generateCuid() }, "secret");
   ctx.body = token;
 });
 
