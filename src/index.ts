@@ -63,9 +63,7 @@ class Player {
       if (data) {
         this.name = data;
       } else {
-        if (this.lobby.players) {
-          this.name = getRandomName(this.id);
-        }
+        this.name = getRandomName(this.lobby.id);
       }
     }
 
