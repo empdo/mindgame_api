@@ -5,9 +5,11 @@ import KoaRouter from "@koa/router";
 import koaCors from "@koa/cors";
 import WebSocket from "ws";
 import { v4 as uuidv4 } from "uuid";
+import jwt from "jsonwebtoken";
 
 const app = new Koa();
 const router = new KoaRouter({ prefix: "/api" });
+const jwtSecret = "secret";
 
 const config = {
   PORT: 10406,
@@ -34,11 +36,11 @@ class Player {
   lobby: Lobby;
   cards: number[] = [];
 
-  constructor(name: string, ws: WebSocket, lobby: Lobby) {
-    this.name = name;
+  constructor(name: string, ws: WebSocket, lobby: Lobby, id: string) {
+    this.name = name || getRandomName(lobby.id);
     this.ws = ws;
     this.readyState = false;
-    this.id = uuidv4();
+    this.id = id;
     this.lobby = lobby;
 
     this.ws.on("message", this.handleMessage.bind(this));
@@ -93,10 +95,14 @@ class Lobby {
     this.id = id;
   }
 
-  addPlayer(player: Player) {
+  addPlayer(player: Player, index?: number) {
     if (!player.ws) return;
 
-    this.players.push(player);
+    if (index) {
+      this.players.splice(index, 0, player);
+    } else {
+      this.players.push(player);
+    }
 
     this.alertPlayersList();
   }
@@ -239,16 +245,25 @@ router.get("/lobbies", (ctx) => {
 router.get("/lobby/:id/", async (ctx) => {
   //connect to lobby
   const id = ctx.params.id;
-  if (!ctx.ws || !id) return;
 
+  const queryToken = ctx.request.query["token"] as string;
+  const token = jwt.verify(queryToken, jwtSecret) as jwt.JwtPayload;
+
+  if (!ctx.ws || !id || !token) return;
   const ws: WebSocket = await ctx.ws();
 
   if (!lobbies[id]) {
     console.log(`Creating lobby with id: ${id}`);
     lobbies[id] = new Lobby(id);
   }
+
   if (!lobbies[id].isPlaying && !(lobbies[id].players.length >= 4)) {
-    lobbies[id].addPlayer(new Player(getRandomName(id), ws, lobbies[id]));
+    const player = new Player(token.name, ws, lobbies[id], token.sub!);
+
+    const ids = lobbies[id].players.map((player) => player.id);
+    let index = ids.indexOf(token.sub!);
+
+    lobbies[id].addPlayer(player, index);
     ctx.body = "Lobby is playing";
   }
 });
