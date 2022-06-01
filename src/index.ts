@@ -62,6 +62,8 @@ class Player {
     } else if (type === 3) {
       if (data) {
         this.name = data;
+      } else {
+        this.name = getRandomName(this.id);
       }
     }
 
@@ -210,6 +212,15 @@ class Lobby {
   }
 }
 
+const getRandomName = (id: string) => {
+  const _names = names.filter(
+    (name) => !lobbies[id].players.map((player) => player.name).includes(name)
+  );
+
+  const name = _names[Math.floor(Math.random() * _names.length)];
+  return name;
+};
+
 router.get("/", (ctx) => {
   ctx.body = "mindgame";
 });
@@ -237,13 +248,7 @@ router.get("/lobby/:id/", async (ctx) => {
     lobbies[id] = new Lobby(id);
   }
   if (!lobbies[id].isPlaying && !(lobbies[id].players.length >= 4)) {
-    const _names = names.filter(
-      (name) => !lobbies[id].players.map((player) => player.name).includes(name)
-    );
-
-    const name = _names[Math.floor(Math.random() * _names.length)];
-
-    lobbies[id].addPlayer(new Player(name, ws, lobbies[id]));
+    lobbies[id].addPlayer(new Player(getRandomName(id), ws, lobbies[id]));
     ctx.body = "Lobby is playing";
   }
 });
