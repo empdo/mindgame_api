@@ -92,8 +92,9 @@ class Lobby {
   dealtCards: number[] = [];
   lives: number = 0;
 
-  constructor(id: string) {
+  constructor(id: string, players?: Player[]) {
     this.id = id;
+    this.players = players || [];
   }
 
   addPlayer(player: Player, index?: number) {
@@ -150,8 +151,8 @@ class Lobby {
     }
 
     if (!this.lives) {
-      this.broadcast(6, "You lost!");
-      this.gameloop();
+      this.broadcast(6, true);
+      lobbies[this.id] = new Lobby(this.id, this.players);
     }
   }
 
