@@ -100,7 +100,7 @@ class Lobby {
     if (!player.ws) return;
 
     if (index) {
-      this.players.splice(index, 0, player);
+      this.players[index] = player;
     } else {
       this.players.push(player);
     }
@@ -246,14 +246,13 @@ router.get("/lobbies", (ctx) => {
 router.post("/token", (ctx) => {
   const { name, bodyToken } = ctx.request.body;
   let _token;
+
   if (bodyToken) {
-    console.log(bodyToken);
     _token = jwt.verify(bodyToken, jwtSecret) as jwt.JwtPayload;
   }
   const sub = _token ? _token.sub : generateCuid();
 
   const token = jwt.sign({ name, sub }, jwtSecret);
-  console.log(token, name);
   ctx.body = JSON.stringify({ token });
 });
 
