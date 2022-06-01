@@ -277,6 +277,8 @@ router.get("/lobby/:id/", async (ctx) => {
 
     const ids = lobbies[id].players.map((player) => player.id);
     let index = ids.indexOf(token.sub!);
+    console.log(index);
+    console.log(ids);
 
     lobbies[id].addPlayer(player, index);
     console.log(lobbies[id].players);
