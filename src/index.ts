@@ -251,6 +251,7 @@ router.post("/token", (ctx) => {
     _token = jwt.verify(bodyToken, jwtSecret) as jwt.JwtPayload;
   }
   const sub = _token ? _token.sub : generateCuid();
+  console.log(sub);
 
   const token = jwt.sign({ name, sub }, jwtSecret);
   ctx.body = JSON.stringify({ token });
@@ -281,7 +282,6 @@ router.get("/lobby/:id/", async (ctx) => {
     console.log(ids);
 
     lobbies[id].addPlayer(player, index);
-    console.log(lobbies[id].players);
     ctx.body = "Lobby is playing";
   }
 });
