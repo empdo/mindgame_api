@@ -99,7 +99,7 @@ class Lobby {
   addPlayer(player: Player, index?: number) {
     if (!player.ws) return;
 
-    if (index) {
+    if (index !== -1 && index !== undefined) {
       this.players[index] = player;
     } else {
       this.players.push(player);
