@@ -150,7 +150,7 @@ class Lobby {
     }
 
     if (!this.lives) {
-      this.broadcast(6);
+      this.broadcast(6, "You lost!");
       this.gameloop();
     }
   }
