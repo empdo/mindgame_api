@@ -245,7 +245,8 @@ router.get("/lobbies", (ctx) => {
 
 router.get("/token", (ctx) => {
   const { name } = ctx.request.body;
-  const token = jwt.sign({ name, sub: generateCuid() }, "secret");
+  const token = jwt.sign({ name, sub: generateCuid() }, jwtSecret);
+  console.log(token, name);
   ctx.body = token;
 });
 
