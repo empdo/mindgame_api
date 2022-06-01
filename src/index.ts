@@ -245,10 +245,13 @@ router.get("/lobbies", (ctx) => {
 
 router.post("/token", (ctx) => {
   const { name, bodyToken } = ctx.request.body;
-  const _token = jwt.verify(bodyToken, jwtSecret) as jwt.JwtPayload;
+  let _token;
+  if (bodyToken) {
+    _token = jwt.verify(bodyToken, jwtSecret) as jwt.JwtPayload;
+  }
 
   const token = jwt.sign(
-    { name, sub: _token.sub || generateCuid() },
+    { name, sub: (_token || {}).sub || generateCuid() },
     jwtSecret
   );
   console.log(token, name);
