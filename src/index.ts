@@ -249,11 +249,9 @@ router.post("/token", (ctx) => {
   if (bodyToken) {
     _token = jwt.verify(bodyToken, jwtSecret) as jwt.JwtPayload;
   }
+  const sub = _token ? _token.sub : generateCuid();
 
-  const token = jwt.sign(
-    { name, sub: (_token || {}).sub || generateCuid() },
-    jwtSecret
-  );
+  const token = jwt.sign({ name, sub }, jwtSecret);
   console.log(token, name);
   ctx.body = JSON.stringify({ token });
 });
