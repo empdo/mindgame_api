@@ -60,7 +60,9 @@ class Player {
       this.lobby.playedCards.push(data);
       this.cards = this.cards.filter((card) => card !== data);
     } else if (type === 3) {
-      this.name = data;
+      if (data) {
+        this.name = data;
+      }
     }
 
     this.lobby.alertPlayersList();
