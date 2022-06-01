@@ -243,7 +243,7 @@ router.get("/lobbies", (ctx) => {
   ctx.body = _lobbies;
 });
 
-router.get("/token", (ctx) => {
+router.post("/token", (ctx) => {
   const { name } = ctx.request.body;
   const token = jwt.sign({ name, sub: generateCuid() }, jwtSecret);
   console.log(token, name);
