@@ -121,7 +121,7 @@ class Lobby {
     this.lives = this.players.length;
     this.broadcast(5, this.lives);
 
-    while (round < 8 && this.lives > 0) {
+    while (round < 12 - this.players.length && this.lives > 0) {
       this.playedCards = [];
       this.dealtCards = [];
       this.initCards(round);
@@ -158,6 +158,8 @@ class Lobby {
         return player;
       });
       this.alertPlayersList();
+    } else {
+      this.broadcast(7, undefined);
     }
   }
 
