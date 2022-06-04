@@ -92,7 +92,6 @@ class Lobby {
   playedCards: number[] = [];
   dealtCards: number[] = [];
   lives: number = 0;
-  cards: { [id: string]: number[] } = {};
 
   constructor(id: string, players?: Player[]) {
     this.id = id;
@@ -215,15 +214,17 @@ class Lobby {
     this.dealtCards = [];
     this.playedCards = [];
 
+    const cards: { [id: string]: number[] } = {};
+
     //byt ut mot broadcast function
     this.players.forEach((player) => {
       const _cards = numbers.splice(0, roundIndex);
       player.cards = _cards;
       this.dealtCards.push(..._cards);
-      this.cards[player.id] = _cards;
+      cards[player.id] = _cards;
     });
 
-    this.broadcast(3, this.cards);
+    this.broadcast(3, cards);
 
     this.dealtCards = this.dealtCards.sort(function (a, b) {
       return a > b ? 1 : -1;
@@ -285,21 +286,17 @@ router.get("/lobby/:id/", async (ctx) => {
     lobbies[id] = new Lobby(id);
   }
 
-  const ids = lobbies[id].players.map((player) => player.id);
-  let index = ids.indexOf(token.sub!);
-  console.log(index);
+  if (!lobbies[id].isPlaying && !(lobbies[id].players.length >= 4)) {
+    const ids = lobbies[id].players.map((player) => player.id);
+    let index = ids.indexOf(token.sub!);
 
-  if (index === -1) {
-    const player = new Player(token.name, ws, lobbies[id], token.sub!);
+    if (index === -1) {
+      const player = new Player(token.name, ws, lobbies[id], token.sub!);
 
-    lobbies[id].addPlayer(player, index);
-  } else {
-    lobbies[id].players[index].ws = ws;
-    lobbies[id].players[index].connected = true;
-    lobbies[id].alertPlayersList();
-    lobbies[id].broadcast(3, lobbies[id].cards);
+      lobbies[id].addPlayer(player, index);
+    }
+    ctx.body = "Lobby is playing";
   }
-  ctx.body = "Lobby is playing";
 });
 
 app.use(koaBody());
