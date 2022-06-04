@@ -77,6 +77,12 @@ class Player {
   socketClose() {
     this.connected = false;
 
+    this.lobby.dealtCards.map((card) => {
+      if (!(card in this.cards)) {
+        return card;
+      }
+    });
+
     if (this.lobby.players.length === 0) {
       delete lobbies[this.lobby.id];
     }
@@ -218,10 +224,12 @@ class Lobby {
 
     //byt ut mot broadcast function
     this.players.forEach((player) => {
-      const _cards = numbers.splice(0, roundIndex);
-      player.cards = _cards;
-      this.dealtCards.push(..._cards);
-      cards[player.id] = _cards;
+      if (player.connected) {
+        const _cards = numbers.splice(0, roundIndex);
+        player.cards = _cards;
+        this.dealtCards.push(..._cards);
+        cards[player.id] = _cards;
+      }
     });
 
     this.broadcast(3, cards);
@@ -286,16 +294,19 @@ router.get("/lobby/:id/", async (ctx) => {
     lobbies[id] = new Lobby(id);
   }
 
+  const ids = lobbies[id].players.map((player) => player.id);
+  let index = ids.indexOf(token.sub!);
   if (!lobbies[id].isPlaying && !(lobbies[id].players.length >= 4)) {
-    const ids = lobbies[id].players.map((player) => player.id);
-    let index = ids.indexOf(token.sub!);
-
     if (index === -1) {
       const player = new Player(token.name, ws, lobbies[id], token.sub!);
 
       lobbies[id].addPlayer(player, index);
     }
     ctx.body = "Lobby is playing";
+  } else if (index !== -1) {
+    lobbies[id].players[index].ws = ws;
+    lobbies[id].players[index].connected = true;
+    ctx.body = "Connected";
   }
 });
 
