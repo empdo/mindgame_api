@@ -92,6 +92,7 @@ class Lobby {
   playedCards: number[] = [];
   dealtCards: number[] = [];
   lives: number = 0;
+  cards: { [id: string]: number[] } = {};
 
   constructor(id: string, players?: Player[]) {
     this.id = id;
@@ -214,17 +215,15 @@ class Lobby {
     this.dealtCards = [];
     this.playedCards = [];
 
-    const cards: { [id: string]: number[] } = {};
-
     //byt ut mot broadcast function
     this.players.forEach((player) => {
       const _cards = numbers.splice(0, roundIndex);
       player.cards = _cards;
       this.dealtCards.push(..._cards);
-      cards[player.id] = _cards;
+      this.cards[player.id] = _cards;
     });
 
-    this.broadcast(3, cards);
+    this.broadcast(3, this.cards);
 
     this.dealtCards = this.dealtCards.sort(function (a, b) {
       return a > b ? 1 : -1;
@@ -298,6 +297,7 @@ router.get("/lobby/:id/", async (ctx) => {
     lobbies[id].players[index].ws = ws;
     lobbies[id].players[index].connected = true;
     lobbies[id].alertPlayersList();
+    lobbies[id].broadcast(3, lobbies[id].cards);
   }
   ctx.body = "Lobby is playing";
 });
