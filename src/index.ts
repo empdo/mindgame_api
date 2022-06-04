@@ -289,6 +289,7 @@ router.get("/lobby/:id/", async (ctx) => {
   if (!lobbies[id].isPlaying && !(lobbies[id].players.length >= 4)) {
     const ids = lobbies[id].players.map((player) => player.id);
     let index = ids.indexOf(token.sub!);
+    console.log(index);
 
     if (index === -1) {
       const player = new Player(token.name, ws, lobbies[id], token.sub!);
