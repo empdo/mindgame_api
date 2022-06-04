@@ -36,6 +36,7 @@ class Player {
   id: string;
   lobby: Lobby;
   cards: number[] = [];
+  connected: boolean = true;
 
   constructor(name: string, ws: WebSocket, lobby: Lobby, id: string) {
     this.name = name || getRandomName(lobby.id);
@@ -74,7 +75,7 @@ class Player {
   }
 
   socketClose() {
-    this.lobby.players = this.lobby.players.filter((p) => p.ws !== this.ws);
+    this.connected = false;
 
     if (this.lobby.players.length === 0) {
       delete lobbies[this.lobby.id];
@@ -172,31 +173,35 @@ class Lobby {
 
   alertPlayersList() {
     this.players.forEach((player) => {
-      player.ws.send(
-        JSON.stringify({
-          type: 1,
-          data: this.players.map((_player) => {
-            return {
-              name: _player.name,
-              readyState: _player.readyState,
-              cards: _player.cards,
-              local: _player.ws === player.ws,
-              id: _player.id,
-            };
-          }),
-        })
-      );
+      if (player.connected) {
+        player.ws.send(
+          JSON.stringify({
+            type: 1,
+            data: this.players.map((_player) => {
+              return {
+                name: _player.name,
+                readyState: _player.readyState,
+                cards: _player.cards,
+                local: _player.ws === player.ws,
+                id: _player.id,
+              };
+            }),
+          })
+        );
+      }
     });
   }
 
   broadcast(type: number, data?: any, ws?: WebSocket) {
     this.players.forEach((player) => {
-      player.ws.send(
-        JSON.stringify({
-          type,
-          data,
-        })
-      );
+      if (player.connected) {
+        player.ws.send(
+          JSON.stringify({
+            type,
+            data,
+          })
+        );
+      }
     });
   }
 
@@ -282,14 +287,14 @@ router.get("/lobby/:id/", async (ctx) => {
   }
 
   if (!lobbies[id].isPlaying && !(lobbies[id].players.length >= 4)) {
-    const player = new Player(token.name, ws, lobbies[id], token.sub!);
-
     const ids = lobbies[id].players.map((player) => player.id);
     let index = ids.indexOf(token.sub!);
-    console.log(index);
-    console.log(ids);
 
-    lobbies[id].addPlayer(player, index);
+    if (index === -1) {
+      const player = new Player(token.name, ws, lobbies[id], token.sub!);
+
+      lobbies[id].addPlayer(player, index);
+    }
     ctx.body = "Lobby is playing";
   }
 });
