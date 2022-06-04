@@ -294,6 +294,10 @@ router.get("/lobby/:id/", async (ctx) => {
       const player = new Player(token.name, ws, lobbies[id], token.sub!);
 
       lobbies[id].addPlayer(player, index);
+    } else {
+      lobbies[id].players[index].ws = ws;
+      lobbies[id].players[index].connected = true;
+      lobbies[id].alertPlayersList();
     }
     ctx.body = "Lobby is playing";
   }
