@@ -286,22 +286,20 @@ router.get("/lobby/:id/", async (ctx) => {
     lobbies[id] = new Lobby(id);
   }
 
-  if (!lobbies[id].isPlaying && !(lobbies[id].players.length >= 4)) {
-    const ids = lobbies[id].players.map((player) => player.id);
-    let index = ids.indexOf(token.sub!);
-    console.log(index);
+  const ids = lobbies[id].players.map((player) => player.id);
+  let index = ids.indexOf(token.sub!);
+  console.log(index);
 
-    if (index === -1) {
-      const player = new Player(token.name, ws, lobbies[id], token.sub!);
+  if (index === -1) {
+    const player = new Player(token.name, ws, lobbies[id], token.sub!);
 
-      lobbies[id].addPlayer(player, index);
-    } else {
-      lobbies[id].players[index].ws = ws;
-      lobbies[id].players[index].connected = true;
-      lobbies[id].alertPlayersList();
-    }
-    ctx.body = "Lobby is playing";
+    lobbies[id].addPlayer(player, index);
+  } else {
+    lobbies[id].players[index].ws = ws;
+    lobbies[id].players[index].connected = true;
+    lobbies[id].alertPlayersList();
   }
+  ctx.body = "Lobby is playing";
 });
 
 app.use(koaBody());
