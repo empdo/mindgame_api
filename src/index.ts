@@ -125,6 +125,7 @@ class Player {
     const connected = this.lobby.players.filter(
       (player) => player.ws.readyState === WebSocket.OPEN
     );
+    console.log(connected);
 
     if (connected.length === 0) {
       delete lobbies[this.lobby.id];
