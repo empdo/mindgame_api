@@ -36,7 +36,6 @@ class Player {
   id: string;
   lobby: Lobby;
   cards: number[] = [];
-  connected: boolean = true;
 
   constructor(name: string, ws: WebSocket, lobby: Lobby, id: string) {
     this.name = name || getRandomName(lobby.id);
@@ -74,17 +73,64 @@ class Player {
     this.lobby.alertPlayersList();
   }
 
+  initPlayer = () => {
+    console.log("init player");
+
+    this.ws.on("message", this.handleMessage.bind(this));
+    this.ws.onclose = () => this.socketClose();
+
+    this.ws.send(
+      JSON.stringify({
+        type: 1,
+        data: this.lobby.players.map((_player) => {
+          return {
+            name: _player.name,
+            readyState: _player.readyState,
+            cards: _player.cards,
+            local: _player.ws === this.ws,
+            id: _player.id,
+          };
+        }),
+      })
+    );
+    this.ws.send(
+      JSON.stringify({
+        type: 3,
+        data: this.lobby.dealtCardsObject,
+      })
+    );
+    this.ws.send(
+      JSON.stringify({
+        type: 4,
+        data: this.lobby.playedCards,
+      })
+    );
+    this.ws.send(
+      JSON.stringify({
+        type: 5,
+        data: this.lobby.lives,
+      })
+    );
+    this.ws.send(
+      JSON.stringify({
+        type: 2,
+        data: true,
+      })
+    );
+  };
+
   socketClose() {
-    this.connected = false;
+    console.log("socket close");
 
-    this.lobby.dealtCards.map((card) => {
-      if (!(card in this.cards)) {
-        return card;
-      }
-    });
+    // this.lobby.dealtCards.map((card) => {
+    //   if (!(card in this.cards)) {
+    //     return card;
+    //   }
+    // });
 
-    if (this.lobby.players.length === 0) {
+    if (!this.lobby.players.length) {
       delete lobbies[this.lobby.id];
+      console.log("deleted lobby");
     }
 
     this.lobby.alertPlayersList();
@@ -98,6 +144,8 @@ class Lobby {
   playedCards: number[] = [];
   dealtCards: number[] = [];
   lives: number = 0;
+  round: number = 1;
+  dealtCardsObject: { [id: string]: number[] } = {};
 
   constructor(id: string, players?: Player[]) {
     this.id = id;
@@ -116,22 +164,26 @@ class Lobby {
     this.alertPlayersList();
   }
 
+  removePlayer = (player: Player) => {
+    this.players = this.players.filter((p) => p.id !== player.id);
+  };
+
   async initGame() {
     this.isPlaying = true;
-    await this.gameloop();
+    await this.gameloop(1);
   }
 
-  async gameloop() {
+  async gameloop(startRound: number) {
     this.broadcast(2, true);
 
-    let round = 1;
+    this.round = startRound;
     this.lives = this.players.length;
     this.broadcast(5, this.lives);
 
-    while (round < 12 - this.players.length && this.lives > 0) {
+    while (this.round < 12 - this.players.length && this.lives > 0) {
       this.playedCards = [];
       this.dealtCards = [];
-      this.initCards(round);
+      this.initCards(this.round);
       let hasPlayedAllCards = false;
       let correctCard = true;
 
@@ -152,9 +204,9 @@ class Lobby {
         this.lives -= 1;
         this.broadcast(5, this.lives);
       } else {
-        round += 1;
+        this.round += 1;
       }
-      console.log(correctCard, round);
+      console.log(correctCard, this.round);
     }
 
     if (!this.lives) {
@@ -179,35 +231,31 @@ class Lobby {
 
   alertPlayersList() {
     this.players.forEach((player) => {
-      if (player.connected) {
-        player.ws.send(
-          JSON.stringify({
-            type: 1,
-            data: this.players.map((_player) => {
-              return {
-                name: _player.name,
-                readyState: _player.readyState,
-                cards: _player.cards,
-                local: _player.ws === player.ws,
-                id: _player.id,
-              };
-            }),
-          })
-        );
-      }
+      player.ws.send(
+        JSON.stringify({
+          type: 1,
+          data: this.players.map((_player) => {
+            return {
+              name: _player.name,
+              readyState: _player.readyState,
+              cards: _player.cards,
+              local: _player.ws === player.ws,
+              id: _player.id,
+            };
+          }),
+        })
+      );
     });
   }
 
   broadcast(type: number, data?: any, ws?: WebSocket) {
     this.players.forEach((player) => {
-      if (player.connected) {
-        player.ws.send(
-          JSON.stringify({
-            type,
-            data,
-          })
-        );
-      }
+      player.ws.send(
+        JSON.stringify({
+          type,
+          data,
+        })
+      );
     });
   }
 
@@ -220,19 +268,15 @@ class Lobby {
     this.dealtCards = [];
     this.playedCards = [];
 
-    const cards: { [id: string]: number[] } = {};
-
     //byt ut mot broadcast function
     this.players.forEach((player) => {
-      if (player.connected) {
-        const _cards = numbers.splice(0, roundIndex);
-        player.cards = _cards;
-        this.dealtCards.push(..._cards);
-        cards[player.id] = _cards;
-      }
+      const _cards = numbers.splice(0, roundIndex);
+      player.cards = _cards;
+      this.dealtCards.push(..._cards);
+      this.dealtCardsObject[player.id] = _cards;
     });
 
-    this.broadcast(3, cards);
+    this.broadcast(3, this.dealtCardsObject);
 
     this.dealtCards = this.dealtCards.sort(function (a, b) {
       return a > b ? 1 : -1;
@@ -296,18 +340,21 @@ router.get("/lobby/:id/", async (ctx) => {
 
   const ids = lobbies[id].players.map((player) => player.id);
   let index = ids.indexOf(token.sub!);
-  if (!lobbies[id].isPlaying && !(lobbies[id].players.length >= 4)) {
-    if (index === -1) {
-      const player = new Player(token.name, ws, lobbies[id], token.sub!);
 
-      lobbies[id].addPlayer(player, index);
-    }
-    ctx.body = "Lobby is playing";
-  } else if (index !== -1) {
-    lobbies[id].players[index].ws = ws;
-    lobbies[id].players[index].connected = true;
-    ctx.body = "Connected";
+  const player = lobbies[id].players.find((player) => player.id === token.sub);
+  console.log(!!!player);
+
+  if (player && lobbies[id].isPlaying) {
+    player.ws = ws;
+
+    player.initPlayer();
+  } else if (!lobbies[id].isPlaying) {
+    const player = new Player(token.name, ws, lobbies[id], token.sub!);
+
+    lobbies[id].addPlayer(player, index);
   }
+
+  ctx.body = "sa";
 });
 
 app.use(koaBody());
