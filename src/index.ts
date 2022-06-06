@@ -144,7 +144,6 @@ class Lobby {
   lives: number = 0;
   round: number = 1;
   dealtCardsObject: { [id: string]: number[] } = {};
-  queue: Player[] = [];
 
   constructor(id: string, players?: Player[]) {
     this.id = id;
@@ -163,22 +162,9 @@ class Lobby {
     this.alertPlayersList();
   }
 
-  queuePlayer(player: Player) {
-    this.queue.push(player);
-  }
-
   removePlayer = (player: Player) => {
     this.players = this.players.filter((p) => p.id !== player.id);
   };
-
-  addQueue() {
-    if (this.queue.length > 0) {
-      this.queue.forEach((player) => {
-        this.addPlayer(player);
-      });
-      this.queue = [];
-    }
-  }
 
   async initGame() {
     this.isPlaying = true;
@@ -365,9 +351,7 @@ router.get("/lobby/:id/", async (ctx) => {
   } else {
     const player = new Player(token.name, ws, lobbies[id], token.sub!);
 
-    if (lobbies[id].isPlaying) {
-      lobbies[id].queuePlayer(player);
-    } else {
+    if (!lobbies[id].isPlaying) {
       lobbies[id].addPlayer(player, index);
     }
   }
