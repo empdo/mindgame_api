@@ -122,13 +122,11 @@ class Player {
   socketClose() {
     console.log("socket close");
 
-    // this.lobby.dealtCards.map((card) => {
-    //   if (!(card in this.cards)) {
-    //     return card;
-    //   }
-    // });
+    const connected = this.lobby.players.filter(
+      (player) => player.ws.readyState === WebSocket.OPEN
+    );
 
-    if (!this.lobby.players.length) {
+    if (!connected) {
       delete lobbies[this.lobby.id];
       console.log("deleted lobby");
     }
