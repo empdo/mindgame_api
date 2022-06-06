@@ -125,11 +125,16 @@ class Player {
     const connected = this.lobby.players.filter(
       (player) => player.ws.readyState === WebSocket.OPEN
     );
-    console.log(connected);
 
     if (connected.length === 0) {
-      delete lobbies[this.lobby.id];
-      console.log("deleted lobby");
+      if (this.lobby.queue.length > 0) {
+        this.lobby.queue.forEach((player) => {
+          this.lobby.addPlayer(player);
+        });
+      } else {
+        delete lobbies[this.lobby.id];
+        console.log("deleted lobby");
+      }
     }
 
     this.lobby.alertPlayersList();
