@@ -168,7 +168,6 @@ class Lobby {
 
   async initGame() {
     this.isPlaying = true;
-    this.addQueue();
     await this.gameloop(1);
   }
 
@@ -218,7 +217,6 @@ class Lobby {
       this.alertPlayersList();
     } else {
       this.broadcast(7, undefined);
-      this.addQueue();
     }
   }
 
