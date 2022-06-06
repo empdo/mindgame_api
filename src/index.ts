@@ -127,14 +127,10 @@ class Player {
     );
 
     if (connected.length === 0) {
-      if (this.lobby.queue.length > 0) {
-        this.lobby.queue.forEach((player) => {
-          this.lobby.addPlayer(player);
-        });
-      } else {
-        delete lobbies[this.lobby.id];
-        console.log("deleted lobby");
-      }
+      this.lobby.addQueue();
+    } else {
+      delete lobbies[this.lobby.id];
+      console.log("deleted lobby");
     }
 
     this.lobby.alertPlayersList();
@@ -177,10 +173,18 @@ class Lobby {
     this.players = this.players.filter((p) => p.id !== player.id);
   };
 
+  addQueue() {
+    if (this.queue.length > 0) {
+      this.queue.forEach((player) => {
+        this.addPlayer(player);
+      });
+      this.queue = [];
+    }
+  }
+
   async initGame() {
     this.isPlaying = true;
-    this.players = this.players.concat(this.queue);
-    this.queue = [];
+    this.addQueue();
     await this.gameloop(1);
   }
 
@@ -230,6 +234,7 @@ class Lobby {
       this.alertPlayersList();
     } else {
       this.broadcast(7, undefined);
+      this.addQueue();
     }
   }
 
