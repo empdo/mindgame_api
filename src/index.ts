@@ -127,8 +127,6 @@ class Player {
     );
 
     if (connected.length === 0) {
-      this.lobby.addQueue();
-    } else {
       delete lobbies[this.lobby.id];
       console.log("deleted lobby");
     }
