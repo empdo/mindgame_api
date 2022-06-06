@@ -126,7 +126,7 @@ class Player {
       (player) => player.ws.readyState === WebSocket.OPEN
     );
 
-    if (!connected) {
+    if (connected.length === 0) {
       delete lobbies[this.lobby.id];
       console.log("deleted lobby");
     }
