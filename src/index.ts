@@ -185,6 +185,11 @@ class Lobby {
       let hasPlayedAllCards = false;
       let correctCard = true;
 
+      if (this.round in [3, 6, 9]) {
+        this.lives++;
+        this.broadcast(5, this.lives);
+      }
+
       while (!hasPlayedAllCards && correctCard) {
         this.broadcast(4, this.playedCards);
         await this.waitForCard();
