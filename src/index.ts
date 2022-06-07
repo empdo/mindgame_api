@@ -96,7 +96,7 @@ class Player {
     this.ws.send(
       JSON.stringify({
         type: 3,
-        data: this.lobby.dealtCardsObject,
+        data: { id: this.cards },
       })
     );
     this.ws.send(
@@ -108,7 +108,7 @@ class Player {
     this.ws.send(
       JSON.stringify({
         type: 5,
-        data: this.lobby.lives,
+        data: { lives: this.lobby.lives, totalLives: this.lobby.totalLives },
       })
     );
     this.ws.send(
