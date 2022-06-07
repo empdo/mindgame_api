@@ -185,11 +185,6 @@ class Lobby {
       let hasPlayedAllCards = false;
       let correctCard = true;
 
-      if (this.round in [3, 6, 9]) {
-        this.lives++;
-        this.broadcast(5, this.lives);
-      }
-
       while (!hasPlayedAllCards && correctCard) {
         this.broadcast(4, this.playedCards);
         await this.waitForCard();
@@ -208,6 +203,11 @@ class Lobby {
         this.broadcast(5, this.lives);
       } else {
         this.round += 1;
+      }
+
+      if ([3, 6, 9].includes(this.round)) {
+        this.lives++;
+        this.broadcast(5, this.lives);
       }
       console.log(correctCard, this.round);
     }
