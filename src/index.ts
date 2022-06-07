@@ -209,15 +209,16 @@ class Lobby {
 
     if (!this.lives) {
       this.broadcast(6, true);
-      lobbies[this.id] = new Lobby(this.id, this.players);
-      this.players = this.players.map((player) => {
-        player.readyState = false;
-        return player;
-      });
-      this.alertPlayersList();
     } else {
       this.broadcast(7, undefined);
     }
+
+    lobbies[this.id] = new Lobby(this.id, this.players);
+    this.players = this.players.map((player) => {
+      player.readyState = false;
+      return player;
+    });
+    this.alertPlayersList();
   }
 
   async waitForCard() {
