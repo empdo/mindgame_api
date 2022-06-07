@@ -93,10 +93,14 @@ class Player {
         }),
       })
     );
+    const _data: { [id: string]: number[] } = {};
+    this.lobby.players.forEach((player) => {
+      _data[player.id] = player.cards;
+    });
     this.ws.send(
       JSON.stringify({
         type: 3,
-        data: { [this.id]: this.cards },
+        data: _data,
       })
     );
     this.ws.send(
