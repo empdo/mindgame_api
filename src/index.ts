@@ -177,7 +177,8 @@ class Lobby {
 
     this.round = startRound;
     this.lives = this.players.length;
-    this.broadcast(5, this.lives);
+    this.totalLives = this.lives;
+    this.broadcast(5, { lives: this.lives, totalLives: this.totalLives });
 
     while (this.round < 12 - this.players.length && this.lives > 0) {
       this.playedCards = [];
