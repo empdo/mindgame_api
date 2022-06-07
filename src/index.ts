@@ -144,6 +144,7 @@ class Lobby {
   lives: number = 0;
   round: number = 1;
   dealtCardsObject: { [id: string]: number[] } = {};
+  totalLives: number = 0;
 
   constructor(id: string, players?: Player[]) {
     this.id = id;
@@ -200,14 +201,15 @@ class Lobby {
       }
       if (!correctCard) {
         this.lives -= 1;
-        this.broadcast(5, this.lives);
+        this.broadcast(5, { lives: this.lives, totalLives: this.totalLives });
       } else {
         this.round += 1;
       }
 
       if ([3, 6, 9].includes(this.round)) {
         this.lives++;
-        this.broadcast(5, this.lives);
+        this.totalLives++;
+        this.broadcast(5, { lives: this.lives, totalLives: this.totalLives });
       }
       console.log(correctCard, this.round);
     }
