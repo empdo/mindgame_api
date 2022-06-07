@@ -123,7 +123,8 @@ class Player {
     );
   };
 
-  socketClose() {
+  async socketClose() {
+    await sleep(10000);
     console.log("socket close");
 
     const connected = this.lobby.players.filter(
