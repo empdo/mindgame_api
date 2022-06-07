@@ -205,13 +205,13 @@ class Lobby {
         this.broadcast(5, { lives: this.lives, totalLives: this.totalLives });
       } else {
         this.round += 1;
+        if ([3, 6, 9].includes(this.round)) {
+          this.lives++;
+          this.totalLives++;
+          this.broadcast(5, { lives: this.lives, totalLives: this.totalLives });
+        }
       }
 
-      if ([3, 6, 9].includes(this.round)) {
-        this.lives++;
-        this.totalLives++;
-        this.broadcast(5, { lives: this.lives, totalLives: this.totalLives });
-      }
       console.log(correctCard, this.round);
     }
 
