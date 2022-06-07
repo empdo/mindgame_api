@@ -132,8 +132,8 @@ class Player {
     );
 
     if (connected.length === 0) {
-      delete lobbies[this.lobby.id];
-      console.log("deleted lobby");
+      this.lobby.resetLobby();
+      this.lobby.players = [];
     }
 
     this.lobby.alertPlayersList();
@@ -226,6 +226,10 @@ class Lobby {
       this.broadcast(7, undefined);
     }
 
+    this.resetLobby();
+  }
+
+  resetLobby() {
     lobbies[this.id] = new Lobby(this.id, this.players);
     this.players = this.players.map((player) => {
       player.readyState = false;
