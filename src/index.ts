@@ -96,7 +96,7 @@ class Player {
     this.ws.send(
       JSON.stringify({
         type: 3,
-        data: { id: this.cards },
+        data: { [this.id]: this.cards },
       })
     );
     this.ws.send(
