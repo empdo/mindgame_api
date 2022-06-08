@@ -49,6 +49,21 @@ class Player {
 
     this.ws.on("message", this.handleMessage.bind(this));
     this.ws.onclose = () => this.socketClose();
+
+    this.getAvatar();
+  }
+
+  getAvatar() {
+    const indexes = Array.from(
+      { length: avatarAmount },
+      (_, i) => i + 1
+    ).filter((_) => {
+      return this.lobby.players.every((_player) => _player.avatarIndex !== _);
+    });
+
+    console.log(indexes);
+
+    this.avatarIndex = indexes[Math.floor(Math.random() * indexes.length)];
   }
 
   handleMessage(e: string) {
@@ -163,16 +178,6 @@ class Lobby {
 
   addPlayer(player: Player, index?: number) {
     if (!player.ws) return;
-
-    const indexes = Array.from(
-      { length: avatarAmount },
-      (_, i) => i + 1
-    ).filter((_, i) => {
-      return this.players.every((_player) => _player.avatarIndex !== i);
-    });
-    console.log(indexes);
-
-    player.avatarIndex = indexes[Math.floor(Math.random() * indexes.length)];
 
     if (index !== -1 && index !== undefined) {
       this.players[index] = player;
