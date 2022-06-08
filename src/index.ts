@@ -170,6 +170,7 @@ class Lobby {
     ).filter((_, i) => {
       return this.players.every((_player) => _player.avatarIndex !== i);
     });
+    console.log(indexes);
 
     player.avatarIndex = indexes[Math.floor(Math.random() * indexes.length)];
 
@@ -375,11 +376,11 @@ router.get("/lobby/:id/", async (ctx) => {
   const player = lobbies[id].players.find((player) => player.id === token.sub);
   console.log(!!!player);
 
-  if (player && lobbies[id].isPlaying) {
+  if (player && lobbies[id].isPlaying && lobbies[id].players.length < 4) {
     player.ws = ws;
 
     player.initPlayer();
-  } else {
+  } else if (lobbies[id].players.length < 4) {
     const player = new Player(token.name, ws, lobbies[id], token.sub!);
 
     if (!lobbies[id].isPlaying) {
