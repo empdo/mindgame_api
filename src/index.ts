@@ -93,6 +93,7 @@ class Player {
             cards: _player.cards,
             local: _player.ws === this.ws,
             id: _player.id,
+            avatarIndex: _player.avatarIndex,
           };
         }),
       })
