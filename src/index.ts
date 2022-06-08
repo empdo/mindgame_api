@@ -29,6 +29,8 @@ const names = [
 export const sleep = async (duration: number) =>
   await new Promise<void>((resolve) => setTimeout(resolve, duration));
 
+const avatarAmount = 5;
+
 class Player {
   name: string;
   ws: WebSocket;
@@ -36,6 +38,7 @@ class Player {
   id: string;
   lobby: Lobby;
   cards: number[] = [];
+  avatarIndex?: number = undefined;
 
   constructor(name: string, ws: WebSocket, lobby: Lobby, id: string) {
     this.name = name || getRandomName(lobby.id);
@@ -74,6 +77,7 @@ class Player {
   }
 
   initPlayer = () => {
+    //gör om denna funktion
     console.log("init player");
 
     this.ws.on("message", this.handleMessage.bind(this));
@@ -158,6 +162,15 @@ class Lobby {
 
   addPlayer(player: Player, index?: number) {
     if (!player.ws) return;
+
+    const indexes = Array.from(
+      { length: avatarAmount },
+      (_, i) => i + 1
+    ).filter((_, i) => {
+      return this.players.every((_player) => _player.avatarIndex !== i);
+    });
+
+    player.avatarIndex = indexes[Math.floor(Math.random() * indexes.length)];
 
     if (index !== -1 && index !== undefined) {
       this.players[index] = player;
@@ -257,6 +270,7 @@ class Lobby {
               cards: _player.cards,
               local: _player.ws === player.ws,
               id: _player.id,
+              avatarIndex: _player.avatarIndex,
             };
           }),
         })
