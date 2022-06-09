@@ -381,7 +381,6 @@ router.get("/lobby/:id/", async (ctx) => {
     player.initPlayer();
   } else if (lobbies[id].players.length < 4) {
     const player = new Player(token.name, ws, lobbies[id], token.sub!);
-    console.log("adding player");
 
     if (!lobbies[id].isPlaying) {
       lobbies[id].addPlayer(player, index);
