@@ -61,8 +61,6 @@ class Player {
       return this.lobby.players.every((_player) => _player.avatarIndex !== _);
     });
 
-    console.log(indexes);
-
     this.avatarIndex = indexes[Math.floor(Math.random() * indexes.length)];
   }
 
@@ -93,7 +91,7 @@ class Player {
 
   initPlayer = () => {
     //gör om denna funktion
-    console.log("init player");
+    console.log("init player: ", this.id);
 
     this.ws.on("message", this.handleMessage.bind(this));
     this.ws.onclose = () => this.socketClose();
@@ -178,6 +176,7 @@ class Lobby {
 
   addPlayer(player: Player, index?: number) {
     if (!player.ws) return;
+    console.log("add player: ", player.id);
 
     if (index !== -1 && index !== undefined) {
       this.players[index] = player;
@@ -236,8 +235,6 @@ class Lobby {
           this.broadcast(5, { lives: this.lives, totalLives: this.totalLives });
         }
       }
-
-      console.log(correctCard, this.round);
     }
 
     if (!this.lives) {
@@ -353,7 +350,6 @@ router.post("/token", (ctx) => {
     _token = jwt.verify(bodyToken, jwtSecret) as jwt.JwtPayload;
   }
   const sub = _token ? _token.sub : generateCuid();
-  console.log(sub, bodyToken);
 
   const token = jwt.sign({ name, sub }, jwtSecret);
   ctx.body = JSON.stringify({ token });
@@ -365,7 +361,6 @@ router.get("/lobby/:id/", async (ctx) => {
 
   const queryToken = ctx.request.query["token"] as string;
   const token = jwt.verify(queryToken, jwtSecret) as jwt.JwtPayload;
-  console.log(token);
 
   if (!ctx.ws || !id || !token) return;
   const ws: WebSocket = await ctx.ws();
@@ -379,7 +374,6 @@ router.get("/lobby/:id/", async (ctx) => {
   let index = ids.indexOf(token.sub!);
 
   const player = lobbies[id].players.find((player) => player.id === token.sub);
-  console.log(!!!player);
 
   if (player && lobbies[id].isPlaying && lobbies[id].players.length < 4) {
     player.ws = ws;
