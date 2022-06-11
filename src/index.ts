@@ -75,9 +75,18 @@ class Player {
       if (this.lobby.players.every((player) => player.readyState === true)) {
         this.lobby.initGame();
       }
+
+      this.lobby.alertPlayersList();
     } else if (type === 2) {
       this.lobby.playedCards.push(data);
       this.cards = this.cards.filter((card) => card !== data);
+
+      const object: { [id: string]: number[] } = {};
+      this.lobby.players.forEach((player) => {
+        object[player.id] = player.cards;
+      });
+
+      this.lobby.broadcast(3, object);
     } else if (type === 3) {
       if (data) {
         this.name = data;
@@ -86,7 +95,7 @@ class Player {
       }
     }
 
-    this.lobby.alertPlayersList();
+    //    this.lobby.alertPlayersList();
   }
 
   initPlayer = () => {
@@ -111,6 +120,9 @@ class Player {
         }),
       })
     );
+
+    this.ws.send(JSON.stringify({ type: 8, data: this.lobby.round }));
+
     const _data: { [id: string]: number[] } = {};
     this.lobby.players.forEach((player) => {
       _data[player.id] = player.cards;
@@ -210,6 +222,7 @@ class Lobby {
       this.initCards(this.round);
       let hasPlayedAllCards = false;
       let correctCard = true;
+      this.broadcast(8, this.round);
 
       while (!hasPlayedAllCards && correctCard) {
         this.broadcast(4, this.playedCards);
@@ -381,6 +394,7 @@ router.get("/lobby/:id/", async (ctx) => {
     player.initPlayer();
   } else if (lobbies[id].players.length < 4) {
     const player = new Player(token.name, ws, lobbies[id], token.sub!);
+    console.log("adding player");
 
     if (!lobbies[id].isPlaying) {
       lobbies[id].addPlayer(player, index);
